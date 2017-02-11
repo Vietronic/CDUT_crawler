@@ -39,6 +39,7 @@ def file_process(text):
     file = open('./教务处公告.txt', 'w', encoding='utf-8')
     file.write(text)
     file.close()
+    return
 
 def main():
     url = PAGE_URL

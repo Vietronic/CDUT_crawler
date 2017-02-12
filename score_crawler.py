@@ -22,14 +22,18 @@ class stu:
             b = userName + signTime + a.hexdigest()
             temp = hashlib.md5(b.encode())
             return temp.hexdigest()
-        # 时间戳
-        self.signTime = int(time.time()*1000)
-        # 登陆密码
-        self.signedPwd = getPwd(stuNum, pwd, str(self.signTime))
         # POST字典
-        self.postData = { 'Action': 'Login', 'userName': stuNum, 'pwd': self.signedPwd, 'sign': self.signTime}
+        self.postData = {'Action': 'Login', 'userName': stuNum, 'pwd': getPwd(stuNum, pwd, str(1)), 'sign': '1'}
         # 学生信息
-        self.info = { 'num':stuNum}
+        self.info = {'num': stuNum}
+        # 简化代码，优化效率
+        # # 时间戳
+        # self.signTime = int(time.time()*1000)
+        # # 登陆密码
+        # self.signedPwd = getPwd(stuNum, pwd, str(self.signTime))
+        # # POST字典
+        # self.postData = { 'Action': 'Login', 'userName': stuNum, 'pwd': self.signedPwd, 'sign': self.signTime}
+
 
     def getPage(self):
         # 创建一个会话
@@ -39,12 +43,10 @@ class stu:
         # 获取成绩页面
         scoreTemp = ses.get( SCORE_URL, headers=CHROME_HEADERS)
 
-
         # 使用UTF-8打开文件，以防出现编码错误
         file = open('./成绩信息.txt', 'w', encoding='utf-8')
         file.write(scoreTemp.text)
         file.close()
-
         return
 
     def setInfo(self):
@@ -93,9 +95,9 @@ class stu:
 def main():
     # 分别填入学号和密码，均为字符串输入
     a = stu( '201503010713', '510184199801010019')
-    a.getPage()
+    # a.getPage()
     a.setInfo()
-    a.getScore()
+    # a.getScore()
 
 if __name__ == '__main__':
     main()

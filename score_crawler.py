@@ -4,15 +4,20 @@
 __author__ = 'Vietronic'
 
 import requests
-import time
 import hashlib
 import re
+import xlrd
+import xlwt
+# import time
+
 # POST地址
 LOGIN_URL = 'http://202.115.133.173:805/Common/Handler/UserLogin.ashx'
 INFO_URL = 'http://202.115.133.173:805/Default.aspx'
 SCORE_URL = 'http://202.115.133.173:805/SearchInfo/Score/ScoreList.aspx'
 # 浏览器标志头
 CHROME_HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
+# 抓取的总信息数量
+ROW_NUM = 10
 
 class stu:
     def __init__(self, stuNum, pwd):
@@ -33,21 +38,6 @@ class stu:
         # self.signedPwd = getPwd(stuNum, pwd, str(self.signTime))
         # # POST字典
         # self.postData = { 'Action': 'Login', 'userName': stuNum, 'pwd': self.signedPwd, 'sign': self.signTime}
-
-
-    def getPage(self):
-        # 创建一个会话
-        ses = requests.session()
-        # 通过POST方法登陆
-        temp = ses.post( LOGIN_URL, data=self.postData, headers=CHROME_HEADERS)
-        # 获取成绩页面
-        scoreTemp = ses.get( SCORE_URL, headers=CHROME_HEADERS)
-
-        # 使用UTF-8打开文件，以防出现编码错误
-        file = open('./成绩信息.txt', 'w', encoding='utf-8')
-        file.write(scoreTemp.text)
-        file.close()
-        return
 
     def setInfo(self):
         # 创建一个会话
@@ -70,7 +60,21 @@ class stu:
         res = re.findall(pa, info)
         self.info['major'] = res[0]
 
-        print(self.info)
+        # print(self.info)
+        return
+
+    def getPage(self):
+        # 创建一个会话
+        ses = requests.session()
+        # 通过POST方法登陆
+        temp = ses.post( LOGIN_URL, data=self.postData, headers=CHROME_HEADERS)
+        # 获取成绩页面
+        scoreTemp = ses.get( SCORE_URL, headers=CHROME_HEADERS)
+
+        # 使用UTF-8打开文件，以防出现编码错误
+        file = open('./成绩信息.txt', 'w', encoding='utf-8')
+        file.write(scoreTemp.text)
+        file.close()
         return
 
     def getScore(self):
@@ -93,11 +97,36 @@ class stu:
         return
 
 def main():
-    # 分别填入学号和密码，均为字符串输入
-    a = stu( '201503010713', '510184199801010019')
-    # a.getPage()
-    a.setInfo()
-    # a.getScore()
+    book = xlrd.open_workbook('test.xls')
+    # 创建 xls 文件对象
+    wb = xlwt.Workbook()
+    # 新增一个表单
+    sheet_write = wb.add_sheet('info')
+
+    sh = book.sheet_by_index(0)
+    row = 1
+    while (row <= ROW_NUM):
+        stuNum = sh.cell_value(row, 0)
+        id = sh.cell_value(row, 1)
+        name = sh.cell_value(row, 2)
+        # 创建学生对象，分别填入学号和密码，均为字符串输入
+        temp = stu(stuNum, id)
+        temp.setInfo()
+
+        # 按位置添加数据
+        sheet_write.write(row - 1, 0, stuNum)
+        sheet_write.write(row - 1, 1, id)
+        sheet_write.write(row - 1, 2, name)
+        sheet_write.write(row - 1, 3, temp.info['name'])
+        sheet_write.write(row - 1, 4, temp.info['major'])
+        sheet_write.write(row - 1, 5, temp.info['col'])
+        del temp
+        row += 1
+        if(row%700==0):
+            print('完成了',row/ROW_NUM,'%')
+
+    # 保存文件
+    wb.save('example.xls')
 
 if __name__ == '__main__':
     main()

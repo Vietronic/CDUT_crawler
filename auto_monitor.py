@@ -21,7 +21,7 @@ class auto_monitor:
             f = open('./config.json', 'r', encoding='utf-8')
             config = json.load(f)
             f.close()
-            print('已正确加载配置文件。')
+            print('The configuration file has been loaded correctly.'.encode("gb2312"))
             return config
         # 初始化配置信息
         self.config = load_config()
@@ -50,7 +50,7 @@ class auto_monitor:
 
         # 如果和设定的值相同，表示没有更新
         if( res[0][0] == self.pointer):
-            print('已查询，当前无更新。编号：' + self.pointer + ' 时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+            print('No new file. Num: ' + self.pointer + 'Time: ' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
             return
         # 若有新内容，则下载该页面并发送
         msg_page_url = 'http://www.aao.cdut.edu.cn/aao/aao.php?aid=' + str(res[0][0]) + '&sort=389&sorid=391&from=passg'
@@ -58,7 +58,9 @@ class auto_monitor:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'
         })
 
+        # 发送邮件
         self.email_push( temp.text, res[0][1])
+
         # 发送邮件后重设指标值
         self.pointer = res[0][0]
         return
@@ -86,7 +88,7 @@ class auto_monitor:
 
         # 关闭连接
         server.quit()
-        print('已发送邮件，编号：' + self.pointer + ' 时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        print('Message has been sent, Num: ' + self.pointer + ' Time: ' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         return
 
 def main():

@@ -48,3 +48,4 @@ Temporary Items
 
 # 忽略.idea配置
 /.idea/*
+config.json
